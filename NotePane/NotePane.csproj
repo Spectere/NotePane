@@ -59,6 +59,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="NoteContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="NoteView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -69,6 +73,9 @@
     </Compile>
     <Compile Include="Note.xaml.cs">
       <DependentUpon>Note.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="NoteContainer.xaml.cs">
+      <DependentUpon>NoteContainer.xaml</DependentUpon>
     </Compile>
     <Compile Include="NoteView.xaml.cs">
       <DependentUpon>NoteView.xaml</DependentUpon>
