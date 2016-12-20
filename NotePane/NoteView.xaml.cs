@@ -7,7 +7,7 @@ namespace NotePane {
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class NoteView {
-        private int _tabCount = 0;
+        private int _tabCount;
 
         public NoteView() {
             InitializeComponent();
@@ -67,7 +67,7 @@ namespace NotePane {
             tab.Header = renameBox;
         }
 
-        private static void RenameTab(TabItem tab, string name) {
+        private static void RenameTab(HeaderedContentControl tab, string name) {
             tab.Header = name;
         }
     }
