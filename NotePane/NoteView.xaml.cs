@@ -45,6 +45,11 @@ namespace NotePane {
         }
 
         private void New_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            var result = MessageBox.Show(
+                "Are you sure you wish to create a new Notebook? Unsaved changes will be lost.", null,
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(result == MessageBoxResult.No) return;
+
             NewNotebook();
         }
 
