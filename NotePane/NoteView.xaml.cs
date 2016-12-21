@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace NotePane {
     /// <summary>
@@ -64,25 +65,36 @@ namespace NotePane {
 
             var renameBox = new TextBox {
                 Focusable = true,
-                Tag = tab,
+                Tag = new TabData {
+                    TabObject = tab,
+                    OldName = tab.Header.ToString()
+                },
                 Text = tab.Header.ToString()
             };
 
             renameBox.LostFocus += (obj, args) => {
                                        var txtBox = (TextBox)obj;
-                                       var parentTab = (TabItem)txtBox.Tag;
-                                       RenameTab(parentTab, txtBox.Text);
+                                       var tabData = (TabData)txtBox.Tag;
+                                       var parentTab = tabData.TabObject;
+
+                                       // Only update the textbox if it's still in the header.
+                                       if(parentTab.Header.Equals(txtBox))
+                                           RenameTab(parentTab, txtBox.Text);
                                    };
 
             renameBox.KeyDown += (obj, args) => {
-                                     if(args.Key != Key.Enter || args.Key != Key.Return) return;
+                                     if(args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Escape) return;
                                      var txtBox = (TextBox)obj;
-                                     var parentTab = (TabItem)txtBox.Tag;
-                                     RenameTab(parentTab, txtBox.Text);
+                                     var tabData = (TabData)txtBox.Tag;
+                                     var parentTab = tabData.TabObject;
+                                     RenameTab(parentTab, args.Key == Key.Escape ? tabData.OldName : txtBox.Text);
+                                     args.Handled = true;
                                  };
 
             // Used to set focus when the control becomes visible.
-            renameBox.IsVisibleChanged += (obj, args) => { ((TextBox)obj).Focus(); };
+            renameBox.IsVisibleChanged += (obj, args) => {
+                                              if((bool)args.NewValue) ((TextBox)obj).Focus();
+                                          };
 
             renameBox.SelectAll();
             tab.Header = renameBox;
@@ -90,6 +102,11 @@ namespace NotePane {
 
         private static void RenameTab(HeaderedContentControl tab, string name) {
             tab.Header = name;
+        }
+
+        private class TabData {
+            public TabItem TabObject { get; set; }
+            public string OldName { get; set; }
         }
     }
 }
