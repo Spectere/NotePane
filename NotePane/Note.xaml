@@ -32,16 +32,16 @@
         </Grid.RowDefinitions>
     
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <Label Name="Expand"
+            <Label Name="ExpandButton"
                    Content="-"
                    Style="{StaticResource ExpandStyle}"
                    MouseLeftButtonUp="Expand_MouseLeftButtonUp" />
             
             <TextBox Name="Title"
-                 Background="Transparent"
-                 BorderBrush="Transparent"
-                 Text="Title"
-                 Style="{StaticResource TitleStyle}" />
+                     Background="Transparent"
+                     BorderBrush="Transparent"
+                     Text="New Note"
+                     Style="{StaticResource TitleStyle}" />
         </StackPanel>
 
         <Separator Name="TitleSeparator"

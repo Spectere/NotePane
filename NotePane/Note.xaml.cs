@@ -10,18 +10,27 @@ namespace NotePane {
 
         public Note() {
             InitializeComponent();
-
             TitleSeparator.Margin = new Thickness(0, TitleRow.Height.Value - 1, 0, 0);
-
             NoteText.Document.LineHeight = 1;
-            NoteText.AppendText("Hello world!");
+        }
+
+        public void Collapse() {
+            ExpansionHandler(false);
+        }
+
+        public void Expand() {
+            ExpansionHandler(true);
+        }
+
+        private void ExpansionHandler(bool expand) {
+            Height = expand ? double.NaN : TitleRow.Height.Value;
+            ExpandButton.Content = expand ? "-" : "+";
+            TitleSeparator.Visibility = expand ? Visibility.Hidden : Visibility.Visible;
+            _expanded = expand;
         }
 
         private void Expand_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-            _expanded = !_expanded;
-            Height = _expanded ? double.NaN : TitleRow.Height.Value;
-            Expand.Content = _expanded ? "-" : "+";
-            TitleSeparator.Visibility = _expanded ? Visibility.Hidden : Visibility.Visible;
+            ExpansionHandler(!_expanded);
         }
     }
 }

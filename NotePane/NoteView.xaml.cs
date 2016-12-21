@@ -37,6 +37,23 @@ namespace NotePane {
             NoteTabContainer.SelectedItem = newTab;
         }
 
+        private void CollapseAll_Click(object sender, RoutedEventArgs e) {
+            NoteExpansion(false);
+        }
+
+        private void ExpandAll_Click(object sender, RoutedEventArgs e) {
+            NoteExpansion(true);
+        }
+
+        private void NoteExpansion(bool expand) {
+            var noteContainer = (NoteContainer)NoteTabContainer.SelectedContent;
+
+            foreach(Note note in noteContainer.NoteStack.Children) {
+                if(expand) note.Expand();
+                else note.Collapse();
+            }
+        }
+
         private void Tab_MouseDoubleClick(object sender, RoutedEventArgs e) {
             // The only thing that uses TextBlock controls (as of right now) are tab headers.
             // TODO: Make this a bit more of a surefire thing.
