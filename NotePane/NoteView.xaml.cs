@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace NotePane {
     /// <summary>
@@ -12,8 +11,7 @@ namespace NotePane {
 
         public NoteView() {
             InitializeComponent();
-
-            CreateTab();
+            NewNotebook();
         }
 
         private void AddTab_GotFocus(object sender, RoutedEventArgs e) {
@@ -46,6 +44,21 @@ namespace NotePane {
             NoteExpansion(true);
         }
 
+        private void New_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            NewNotebook();
+        }
+
+        private void NewNotebook() {
+            _tabCount = 0;
+            NoteTabContainer.Items.Clear();
+
+            var newTab = new TabItem { Header = "+" };
+            newTab.GotFocus += AddTab_GotFocus;
+            NoteTabContainer.Items.Add(newTab);
+
+            CreateTab();
+        }
+
         private void NoteExpansion(bool expand) {
             var noteContainer = (NoteContainer)NoteTabContainer.SelectedContent;
 
@@ -53,6 +66,10 @@ namespace NotePane {
                 if(expand) note.Expand();
                 else note.Collapse();
             }
+        }
+
+        private void Open_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            throw new System.NotImplementedException();
         }
 
         private void Tab_MouseDoubleClick(object sender, RoutedEventArgs e) {
@@ -78,6 +95,7 @@ namespace NotePane {
                                        var parentTab = tabData.TabObject;
 
                                        // Only update the textbox if it's still in the header.
+                                       // This allows cancelling input to work as expected.
                                        if(parentTab.Header.Equals(txtBox))
                                            RenameTab(parentTab, txtBox.Text);
                                    };
@@ -102,6 +120,14 @@ namespace NotePane {
 
         private static void RenameTab(HeaderedContentControl tab, string name) {
             tab.Header = name;
+        }
+
+        private void Save_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            throw new System.NotImplementedException();
+        }
+
+        private void SaveAs_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            throw new System.NotImplementedException();
         }
 
         private class TabData {

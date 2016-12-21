@@ -5,6 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="MainWindow" Height="640" Width="400">
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="New_OnExecuted" />
+        <CommandBinding Command="Open" Executed="Open_OnExecuted" />
+        <CommandBinding Command="Save" Executed="Save_OnExecuted" />
+        <CommandBinding Command="SaveAs" Executed="SaveAs_OnExecuted" />
+    </Window.CommandBindings>
+    
+    <Window.InputBindings>
+        <KeyBinding Command="New" Key="N" Modifiers="Control" />
+        <KeyBinding Command="Open" Key="O" Modifiers="Control" />
+        <KeyBinding Command="Save" Key="S" Modifiers="Control" />
+        <KeyBinding Command="SaveAs" Key="F12" />
+    </Window.InputBindings>
+    
     <Window.Resources>
         <Style x:Key="MenuItemStyle" TargetType="MenuItem">
             <Setter Property="BorderBrush" Value="Gray" />
@@ -21,7 +35,6 @@
 
         <TabControl Name="NoteTabContainer"
                     Grid.Row="0">
-            <TabItem Header="+" GotFocus="AddTab_GotFocus" />
         </TabControl>
 
         <Menu Grid.Row="1">
