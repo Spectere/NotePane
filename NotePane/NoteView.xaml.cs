@@ -38,6 +38,10 @@ namespace NotePane {
         }
 
         private void Tab_MouseDoubleClick(object sender, RoutedEventArgs e) {
+            // The only thing that uses TextBlock controls (as of right now) are tab headers.
+            // TODO: Make this a bit more of a surefire thing.
+            if(e.OriginalSource.GetType() != typeof(TextBlock)) return;
+
             var tab = (TabItem)sender;
             if(tab.Header.GetType() != typeof(string)) return;
 
