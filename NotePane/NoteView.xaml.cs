@@ -42,7 +42,8 @@ namespace NotePane {
         private void CreateTab() {
             var newTab = new TabItem {
                 Header = $"Tab {++_tabCount}",
-                Content = new StackPanel()
+                Content = new StackPanel(),
+                Style = (Style)Resources["NoteTabStyle"]
             };
 
             newTab.MouseDoubleClick += Tab_MouseDoubleClick;
@@ -73,7 +74,10 @@ namespace NotePane {
             NewNotebook(false);
 
             foreach(var tab in notebook.Tabs) {
-                var newTab = new TabItem { Header = tab.Title };
+                var newTab = new TabItem {
+                    Header = tab.Title,
+                    Style = (Style)Resources["NoteTabStyle"]
+                };
                 var noteContainer = new StackPanel();
 
                 if(tab.Note != null) {
@@ -135,6 +139,28 @@ namespace NotePane {
             foreach(Note note in noteContainer.Children) {
                 note.Expanded = expand;
             }
+        }
+
+        private void NoteTab_Drag(object sender, MouseEventArgs e) {
+            if(e.Source.GetType() != typeof(TabItem)) return;
+            var noteTab = (TabItem)e.Source;
+            if(noteTab == null) return;
+
+            if(e.LeftButton == MouseButtonState.Pressed)
+                DragDrop.DoDragDrop(noteTab, noteTab, DragDropEffects.Move);
+        }
+
+        private void NoteTab_Drop(object sender, DragEventArgs e) {
+            var tabSource = (TabItem)e.Data.GetData(typeof(TabItem));
+            var tabDestination = (TabItem)e.Source;
+            if(tabSource == null || tabDestination == null || tabSource.Equals(tabDestination)) return;
+
+            var destinationIndex = NoteTabContainer.Items.IndexOf(tabDestination);
+
+            NoteTabContainer.SelectedIndex = 0;  // kludge to prevent the new tab function from activating
+            NoteTabContainer.Items.Remove(tabSource);
+            NoteTabContainer.Items.Insert(destinationIndex, tabSource);
+            NoteTabContainer.SelectedIndex = destinationIndex;
         }
 
         private void Open_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
