@@ -73,10 +73,10 @@ namespace NotePane {
                 if(tab.Note != null) {
                     foreach(var note in tab.Note) {
                         var newNote = new Note {
-                            Expanded = note.ExpandedSpecified ? note.Expanded : true,
+                            Expanded = !note.ExpandedSpecified || note.Expanded,
                             Title = { Text = note.Title }
                         };
-                        var documentContents = System.Convert.FromBase64String(note.Text);
+                        var documentContents = System.Convert.FromBase64String(note.Data);
                         using(var memoryStream = new MemoryStream(documentContents)) {
                             var range = new TextRange(newNote.NoteText.Document.ContentStart,
                                                       newNote.NoteText.Document.ContentEnd);
@@ -91,6 +91,9 @@ namespace NotePane {
 
                 NoteTabContainer.Items.Insert(NoteTabContainer.Items.Count - 1, newTab);
             }
+
+            if(notebook.SelectedTabSpecified)
+                NoteTabContainer.SelectedIndex = notebook.SelectedTab;
         }
 
         private void New_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
@@ -244,7 +247,7 @@ namespace NotePane {
                         range.Save(memoryStream, DataFormats.XamlPackage);
                         memoryStream.Seek(0, SeekOrigin.Begin);
                         var rtfData = System.Convert.ToBase64String(memoryStream.ToArray());
-                        outNote.Text = rtfData;
+                        outNote.Data = rtfData;
                     }
 
                     tabNotes.Add(outNote);
@@ -254,6 +257,8 @@ namespace NotePane {
                 outTabList.Add(outTab);
             }
             notebook.Tabs = outTabList.ToArray();
+            notebook.SelectedTab = NoteTabContainer.SelectedIndex;
+            notebook.SelectedTabSpecified = true;
 
             return notebook;
         }

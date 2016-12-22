@@ -16,6 +16,7 @@
           </xs:complexType>
         </xs:element>
       </xs:sequence>
+      <xs:attribute name="SelectedTab" type="xs:int" use="optional" />
     </xs:complexType>
   </xs:element>
 
@@ -29,7 +30,7 @@
   <xs:complexType name="NoteType">
     <xs:all>
       <xs:element name="Title" type="xs:string" minOccurs="1" maxOccurs="1" />
-      <xs:element name="Text" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Data" type="xs:string" minOccurs="1" maxOccurs="1" />
       <xs:element name="Expanded" type="xs:boolean" minOccurs="0" maxOccurs="1" />
     </xs:all>
   </xs:complexType>
