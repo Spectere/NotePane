@@ -53,19 +53,38 @@ namespace NotePane {
         }
 
         private TabItem CreateTab(string header = null) {
+            var headerText = header ?? $"Tab {++_tabCount}";
+            var tabHeader = new NoteTabHeader { TabTitle = headerText };
+            tabHeader.DeleteTab += TabHeader_OnDeleteTab;
+
             var newTab = new TabItem {
-                Header = header ?? $"Tab {++_tabCount}",
                 Content = new StackPanel(),
                 Style = (Style)Resources["NoteTabStyle"]
             };
 
-            newTab.MouseDoubleClick += Tab_MouseDoubleClick;
+            tabHeader.ParentTab = newTab;
+            newTab.Header = tabHeader;
 
             return newTab;
         }
 
         private void CollapseAll_Click(object sender, RoutedEventArgs e) {
             NoteExpansion(false);
+        }
+
+        private void DeleteTab(TabItem tabItem) {
+            // Kludge to prevent new tab from getting activated accidentally.
+            var tabIndex = NoteTabContainer.Items.IndexOf(tabItem);
+            var count = NoteTabContainer.Items.Count;
+            if(count > 2 && tabIndex == count - 2) {
+                // Decrement the selected index.
+                NoteTabContainer.SelectedIndex--;
+            }
+
+            NoteTabContainer.Items.Remove(tabItem);
+
+            if(NoteTabContainer.Items.Count == 1)
+                AddTab(CreateTab());
         }
 
         private Notebook DeserializeFile(string filename) {
@@ -105,9 +124,7 @@ namespace NotePane {
                     }
                 }
 
-                newTab.MouseDoubleClick += Tab_MouseDoubleClick;
                 newTab.Content = noteContainer;
-
                 NoteTabContainer.Items.Insert(NoteTabContainer.Items.Count - 1, newTab);
             }
 
@@ -182,9 +199,18 @@ namespace NotePane {
         }
 
         private void NoteTab_Drop(object sender, DragEventArgs e) {
-            if(e.Source.GetType() != typeof(TabItem)) return;
+            if(e.Source.GetType() != typeof(TabItem) && e.Source.GetType() != typeof(NoteTabHeader)) return;
             var tabSource = (TabItem)e.Data.GetData(typeof(TabItem));
-            var tabDestination = (TabItem)e.Source;
+
+            TabItem tabDestination;
+            if(e.Source.GetType() == typeof(NoteTabHeader)) {
+                var tabHeader = (NoteTabHeader)e.Source;
+                if(tabHeader == null) return;
+                tabDestination = tabHeader.ParentTab;
+            } else {
+                tabDestination = (TabItem)e.Source;
+            }
+
             if(tabSource == null || tabDestination == null || tabSource.Equals(tabDestination)) return;
 
             var destinationIndex = NoteTabContainer.Items.IndexOf(tabDestination);
@@ -204,56 +230,6 @@ namespace NotePane {
             var filename = openDlg.FileName;
             Load(DeserializeFile(filename));
             _filename = filename;
-        }
-
-        private void Tab_MouseDoubleClick(object sender, RoutedEventArgs e) {
-            // The only thing that uses TextBlock controls (as of right now) are tab headers.
-            // TODO: Make this a bit more of a surefire thing.
-            if(e.OriginalSource.GetType() != typeof(TextBlock)) return;
-
-            var tab = (TabItem)sender;
-            if(tab.Header.GetType() != typeof(string)) return;
-
-            var renameBox = new TextBox {
-                Focusable = true,
-                Tag = new TabData {
-                    TabObject = tab,
-                    OldName = tab.Header.ToString()
-                },
-                Text = tab.Header.ToString()
-            };
-
-            renameBox.LostFocus += (obj, args) => {
-                                       var txtBox = (TextBox)obj;
-                                       var tabData = (TabData)txtBox.Tag;
-                                       var parentTab = tabData.TabObject;
-
-                                       // Only update the textbox if it's still in the header.
-                                       // This allows cancelling input to work as expected.
-                                       if(parentTab.Header.Equals(txtBox))
-                                           RenameTab(parentTab, txtBox.Text);
-                                   };
-
-            renameBox.KeyDown += (obj, args) => {
-                                     if(args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Escape) return;
-                                     var txtBox = (TextBox)obj;
-                                     var tabData = (TabData)txtBox.Tag;
-                                     var parentTab = tabData.TabObject;
-                                     RenameTab(parentTab, args.Key == Key.Escape ? tabData.OldName : txtBox.Text);
-                                     args.Handled = true;
-                                 };
-
-            // Used to set focus when the control becomes visible.
-            renameBox.IsVisibleChanged += (obj, args) => {
-                                              if((bool)args.NewValue) ((TextBox)obj).Focus();
-                                          };
-
-            renameBox.SelectAll();
-            tab.Header = renameBox;
-        }
-
-        private static void RenameTab(HeaderedContentControl tab, string name) {
-            tab.Header = name;
         }
 
         private void Save_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
@@ -332,9 +308,8 @@ namespace NotePane {
             return notebook;
         }
 
-        private class TabData {
-            public TabItem TabObject { get; set; }
-            public string OldName { get; set; }
+        private void TabHeader_OnDeleteTab(object sender, TabItem tabItem) {
+            DeleteTab(tabItem);
         }
     }
 }

@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="NotePane.NoteTabHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             MouseDown="NoteTabHeader_OnMouseDown"
+             d:DesignHeight="20" d:DesignWidth="64">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        
+        <Label Name="Title"
+               MouseDoubleClick="Title_MouseDoubleClick"
+               Margin="0"
+               Padding="0"
+               Grid.Column="0" />
+        
+        <Button Content="X"
+                FontSize="8"
+                FontWeight="Bold"
+                Margin="4 0 0 0"
+                Padding="2 0"
+                VerticalAlignment="Center"
+                Click="Delete_OnClick"
+                Grid.Column="1" />
+    </Grid>
+</UserControl>
