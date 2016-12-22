@@ -2,8 +2,6 @@
 using NotePane.Schema;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -23,8 +21,13 @@ namespace NotePane {
             NewNotebook();
         }
 
+        private void AddTab(TabItem tab) {
+            NoteTabContainer.Items.Insert(NoteTabContainer.Items.Count - 1, tab);
+            NoteTabContainer.SelectedItem = tab;
+        }
+
         private void AddTab_GotFocus(object sender, RoutedEventArgs e) {
-            CreateTab();
+            AddTab(CreateTab());
         }
 
         private void AddNote_Click(object sender, RoutedEventArgs e) {
@@ -41,17 +44,16 @@ namespace NotePane {
             return newNote;
         }
 
-        private void CreateTab() {
+        private TabItem CreateTab(string header = null) {
             var newTab = new TabItem {
-                Header = $"Tab {++_tabCount}",
+                Header = header ?? $"Tab {++_tabCount}",
                 Content = new StackPanel(),
                 Style = (Style)Resources["NoteTabStyle"]
             };
 
             newTab.MouseDoubleClick += Tab_MouseDoubleClick;
 
-            NoteTabContainer.Items.Insert(NoteTabContainer.Items.Count - 1, newTab);
-            NoteTabContainer.SelectedItem = newTab;
+            return newTab;
         }
 
         private void CollapseAll_Click(object sender, RoutedEventArgs e) {
@@ -76,10 +78,7 @@ namespace NotePane {
             NewNotebook(false);
 
             foreach(var tab in notebook.Tabs) {
-                var newTab = new TabItem {
-                    Header = tab.Title,
-                    Style = (Style)Resources["NoteTabStyle"]
-                };
+                var newTab = CreateTab(tab.Title);
                 var noteContainer = new StackPanel();
 
                 if(tab.Note != null) {
@@ -127,7 +126,7 @@ namespace NotePane {
             NoteTabContainer.Items.Add(newTab);
 
             if(createNewTab)
-                CreateTab();
+                AddTab(CreateTab());
         }
 
         private void Note_DeleteNote(object sender, Note e) {
