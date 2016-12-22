@@ -36,6 +36,8 @@ namespace NotePane {
         private Note CreateNote() {
             var newNote = new Note();
             newNote.DeleteNote += Note_DeleteNote;
+            newNote.MoveDown += Note_MoveDown;
+            newNote.MoveUp += Note_MoveUp;
             return newNote;
         }
 
@@ -133,6 +135,28 @@ namespace NotePane {
             noteContainer.Children.Remove(e);
         }
 
+        private void Note_MoveDown(object sender, Note e) {
+            if(e == null) return;
+
+            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            var destinationIndex = noteContainer.Children.IndexOf(e) + 1;
+
+            if(destinationIndex >= noteContainer.Children.Count) return;
+            noteContainer.Children.Remove(e);
+            noteContainer.Children.Insert(destinationIndex, e);
+        }
+
+        private void Note_MoveUp(object sender, Note e) {
+            if(e == null) return;
+
+            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            var destinationIndex = noteContainer.Children.IndexOf(e) - 1;
+
+            if(destinationIndex < 0) return;
+            noteContainer.Children.Remove(e);
+            noteContainer.Children.Insert(destinationIndex, e);
+        }
+
         private void NoteExpansion(bool expand) {
             var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
 
@@ -151,6 +175,7 @@ namespace NotePane {
         }
 
         private void NoteTab_Drop(object sender, DragEventArgs e) {
+            if(e.Source.GetType() != typeof(TabItem)) return;
             var tabSource = (TabItem)e.Data.GetData(typeof(TabItem));
             var tabDestination = (TabItem)e.Source;
             if(tabSource == null || tabDestination == null || tabSource.Equals(tabDestination)) return;

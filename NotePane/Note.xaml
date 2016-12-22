@@ -21,7 +21,12 @@
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
-        
+
+        <Style x:Key="MoveStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
         <Style x:Key="TitleStyle" TargetType="TextBox" BasedOn="{StaticResource CommonStyle}">
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="Bold"></Setter>
@@ -42,6 +47,8 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             
             <Label Name="ExpandButton"
@@ -57,8 +64,20 @@
                      Text="New Note"
                      Style="{StaticResource TitleStyle}" />
 
-            <Label Name="DeleteButton"
+            <Label Name="UpButton"
                    Grid.Column="2"
+                   Content="^"
+                   Style="{StaticResource MoveStyle}"
+                   MouseLeftButtonUp="MoveUp_MouseLeftButtonUp" />
+            
+            <Label Name="DownButton"
+                   Grid.Column="3"
+                   Content="v"
+                   Style="{StaticResource MoveStyle}"
+                   MouseLeftButtonUp="MoveDown_MouseLeftButtonUp" />
+            
+            <Label Name="DeleteButton"
+                   Grid.Column="4"
                    Content="X"
                    Style="{StaticResource DeleteStyle}"
                    MouseLeftButtonUp="Delete_MouseLeftButtonUp" />

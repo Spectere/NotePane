@@ -18,6 +18,8 @@ namespace NotePane {
         }
 
         public event EventHandler<Note> DeleteNote;
+        public event EventHandler<Note> MoveDown;
+        public event EventHandler<Note> MoveUp;
 
         public Note() {
             InitializeComponent();
@@ -41,6 +43,14 @@ namespace NotePane {
 
         private void Expand_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
             ExpansionHandler(!_expanded);
+        }
+
+        private void MoveDown_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            MoveDown?.Invoke(this, this);
+        }
+
+        private void MoveUp_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            MoveUp?.Invoke(this, this);
         }
     }
 }
