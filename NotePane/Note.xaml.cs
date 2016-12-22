@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace NotePane {
@@ -16,10 +17,19 @@ namespace NotePane {
             set { ExpansionHandler(value); }
         }
 
+        public event EventHandler<Note> DeleteNote;
+
         public Note() {
             InitializeComponent();
             TitleSeparator.Margin = new Thickness(0, TitleRow.Height.Value - 1, 0, 0);
             NoteText.Document.LineHeight = 1;
+        }
+
+        private void Delete_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            var result = MessageBox.Show("Are you sure you wish to delete this note? This action cannot be undone.", null, MessageBoxButton.YesNo);
+            if(result != MessageBoxResult.Yes) return;
+
+            DeleteNote?.Invoke(this, this);
         }
 
         private void ExpansionHandler(bool expand) {

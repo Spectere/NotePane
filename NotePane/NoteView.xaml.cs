@@ -30,7 +30,13 @@ namespace NotePane {
         private void AddNote_Click(object sender, RoutedEventArgs e) {
             var activeTab = (TabItem)NoteTabContainer.SelectedItem;
             var activeNoteContainer = (StackPanel)activeTab.Content;
-            activeNoteContainer.Children.Add(new Note());
+            activeNoteContainer.Children.Add(CreateNote());
+        }
+
+        private Note CreateNote() {
+            var newNote = new Note();
+            newNote.DeleteNote += Note_DeleteNote;
+            return newNote;
         }
 
         private void CreateTab() {
@@ -72,10 +78,10 @@ namespace NotePane {
 
                 if(tab.Note != null) {
                     foreach(var note in tab.Note) {
-                        var newNote = new Note {
-                            Expanded = !note.ExpandedSpecified || note.Expanded,
-                            Title = { Text = note.Title }
-                        };
+                        var newNote = CreateNote();
+                        newNote.Expanded = !note.ExpandedSpecified || note.Expanded;
+                        newNote.Title.Text = note.Title;
+
                         var documentContents = System.Convert.FromBase64String(note.Data);
                         using(var memoryStream = new MemoryStream(documentContents)) {
                             var range = new TextRange(newNote.NoteText.Document.ContentStart,
@@ -116,6 +122,11 @@ namespace NotePane {
 
             if(createNewTab)
                 CreateTab();
+        }
+
+        private void Note_DeleteNote(object sender, Note e) {
+            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            noteContainer.Children.Remove(e);
         }
 
         private void NoteExpansion(bool expand) {

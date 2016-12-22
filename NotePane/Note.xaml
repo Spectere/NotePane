@@ -10,6 +10,12 @@
             <Setter Property="Margin" Value="0 0 0 0"></Setter>
         </Style>
 
+        <Style x:Key="DeleteStyle" TargetType="Label">
+            <Setter Property="Foreground" Value="DarkRed" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
         <Style x:Key="ExpandStyle" TargetType="Label">
             <Setter Property="FontFamily" Value="Courier New" />
             <Setter Property="FontSize" Value="14" />
@@ -31,18 +37,32 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
     
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
             <Label Name="ExpandButton"
+                   Grid.Column="0"
                    Content="-"
                    Style="{StaticResource ExpandStyle}"
                    MouseLeftButtonUp="Expand_MouseLeftButtonUp" />
             
             <TextBox Name="Title"
+                     Grid.Column="1"
                      Background="Transparent"
                      BorderBrush="Transparent"
                      Text="New Note"
                      Style="{StaticResource TitleStyle}" />
-        </StackPanel>
+
+            <Label Name="DeleteButton"
+                   Grid.Column="2"
+                   Content="X"
+                   Style="{StaticResource DeleteStyle}"
+                   MouseLeftButtonUp="Delete_MouseLeftButtonUp" />
+        </Grid>
 
         <Separator Name="TitleSeparator"
                    Visibility="Hidden"
@@ -60,3 +80,4 @@
         </StackPanel>
     </Grid>
 </UserControl>
+
