@@ -29,14 +29,14 @@ namespace NotePane {
 
         private void AddNote_Click(object sender, RoutedEventArgs e) {
             var activeTab = (TabItem)NoteTabContainer.SelectedItem;
-            var activeNoteContainer = (NoteContainer)activeTab.Content;
-            activeNoteContainer.NoteStack.Children.Add(new Note());
+            var activeNoteContainer = (StackPanel)activeTab.Content;
+            activeNoteContainer.Children.Add(new Note());
         }
 
         private void CreateTab() {
             var newTab = new TabItem {
                 Header = $"Tab {++_tabCount}",
-                Content = new NoteContainer()
+                Content = new StackPanel()
             };
 
             newTab.MouseDoubleClick += Tab_MouseDoubleClick;
@@ -68,7 +68,7 @@ namespace NotePane {
 
             foreach(var tab in notebook.Tabs) {
                 var newTab = new TabItem { Header = tab.Title };
-                var noteContainer = new NoteContainer();
+                var noteContainer = new StackPanel();
 
                 if(tab.Note != null) {
                     foreach(var note in tab.Note) {
@@ -82,7 +82,7 @@ namespace NotePane {
                                                       newNote.NoteText.Document.ContentEnd);
                             range.Load(memoryStream, DataFormats.XamlPackage);
                         }
-                        noteContainer.NoteStack.Children.Add(newNote);
+                        noteContainer.Children.Add(newNote);
                     }
                 }
 
@@ -119,9 +119,9 @@ namespace NotePane {
         }
 
         private void NoteExpansion(bool expand) {
-            var noteContainer = (NoteContainer)NoteTabContainer.SelectedContent;
+            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
 
-            foreach(Note note in noteContainer.NoteStack.Children) {
+            foreach(Note note in noteContainer.Children) {
                 note.Expanded = expand;
             }
         }
@@ -227,12 +227,12 @@ namespace NotePane {
 
             foreach(var tabObject in NoteTabContainer.Items) {
                 var tab = (TabItem)tabObject;
-                if(tab.Content == null || tab.Content.GetType() != typeof(NoteContainer)) continue;
+                if(tab.Content == null || tab.Content.GetType() != typeof(StackPanel)) continue;
 
                 var outTab = new TabType();
-                var noteContainer = (NoteContainer)tab.Content;
+                var noteContainer = (StackPanel)tab.Content;
                 var tabNotes = new List<NoteType>();
-                foreach(var containerChild in noteContainer.NoteStack.Children) {
+                foreach(var containerChild in noteContainer.Children) {
                     if(containerChild.GetType() != typeof(Note)) continue;
 
                     var note = (Note)containerChild;
