@@ -71,9 +71,12 @@ namespace NotePane {
                 var noteContainer = new NoteContainer();
 
                 if(tab.Note != null) {
-                    foreach(var notes in tab.Note) {
-                        var newNote = new Note { Title = { Text = notes.Title } };
-                        var documentContents = System.Convert.FromBase64String(notes.Text);
+                    foreach(var note in tab.Note) {
+                        var newNote = new Note {
+                            Expanded = note.ExpandedSpecified ? note.Expanded : true,
+                            Title = { Text = note.Title }
+                        };
+                        var documentContents = System.Convert.FromBase64String(note.Text);
                         using(var memoryStream = new MemoryStream(documentContents)) {
                             var range = new TextRange(newNote.NoteText.Document.ContentStart,
                                                       newNote.NoteText.Document.ContentEnd);
@@ -126,8 +129,9 @@ namespace NotePane {
             var result = openDlg.ShowDialog();
             if(!result.HasValue || !result.Value) return;
 
-            _filename = openDlg.FileName;
-            Load(DeserializeFile(_filename));
+            var filename = openDlg.FileName;
+            Load(DeserializeFile(filename));
+            _filename = filename;
         }
 
         private void Tab_MouseDoubleClick(object sender, RoutedEventArgs e) {
@@ -182,7 +186,7 @@ namespace NotePane {
 
         private void Save_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
             if(_filename == null) SaveAs();
-            SaveFile(_filename);
+            else SaveFile(_filename);
         }
 
         private void SaveAs_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
@@ -229,7 +233,11 @@ namespace NotePane {
                     if(containerChild.GetType() != typeof(Note)) continue;
 
                     var note = (Note)containerChild;
-                    var outNote = new NoteType { Title = note.Title.Text };
+                    var outNote = new NoteType {
+                        Expanded = note.Expanded,
+                        ExpandedSpecified = true,
+                        Title = note.Title.Text
+                    };
 
                     using(var memoryStream = new MemoryStream()) {
                         var range = new TextRange(note.NoteText.Document.ContentStart, note.NoteText.Document.ContentEnd);

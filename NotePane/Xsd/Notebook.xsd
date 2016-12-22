@@ -30,6 +30,7 @@
     <xs:all>
       <xs:element name="Title" type="xs:string" minOccurs="1" maxOccurs="1" />
       <xs:element name="Text" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Expanded" type="xs:boolean" minOccurs="0" maxOccurs="1" />
     </xs:all>
   </xs:complexType>
 </xs:schema>
