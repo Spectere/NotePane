@@ -1,6 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using System;
+using Microsoft.Win32;
 using NotePane.Schema;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +21,12 @@ namespace NotePane {
         public NoteView() {
             InitializeComponent();
             NewNotebook();
+        }
+
+        private void NoteView_OnClosing(object sender, CancelEventArgs e) {
+            var result = MessageBox.Show("Are you sure you wish to exit? Unsaved changes will be lost.", null, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(result == MessageBoxResult.Yes) return;
+            e.Cancel = true;
         }
 
         private void AddTab(TabItem tab) {

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:notePane="clr-namespace:NotePane"
         mc:Ignorable="d"
+        Closing="NoteView_OnClosing"
         Title="NotePane" Height="640" Width="400">
     <Window.CommandBindings>
         <CommandBinding Command="New" Executed="New_OnExecuted" />
