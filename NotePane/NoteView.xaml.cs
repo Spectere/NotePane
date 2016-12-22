@@ -1,12 +1,21 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using NotePane.Schema;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Xml.Serialization;
 
 namespace NotePane {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class NoteView {
+        private string _filename;
         private int _tabCount;
 
         public NoteView() {
@@ -40,8 +49,45 @@ namespace NotePane {
             NoteExpansion(false);
         }
 
+        private Notebook DeserializeFile(string filename) {
+            var serializer = new XmlSerializer(typeof(Notebook));
+            Notebook notebook;
+
+            using(var notebookFile = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                notebook = (Notebook)serializer.Deserialize(notebookFile);
+
+            return notebook;
+        }
+
         private void ExpandAll_Click(object sender, RoutedEventArgs e) {
             NoteExpansion(true);
+        }
+
+        private void Load(Notebook notebook) {
+            NewNotebook(false);
+
+            foreach(var tab in notebook.Tabs) {
+                var newTab = new TabItem { Header = tab.Title };
+                var noteContainer = new NoteContainer();
+
+                if(tab.Note != null) {
+                    foreach(var notes in tab.Note) {
+                        var newNote = new Note { Title = { Text = notes.Title } };
+                        var documentContents = System.Convert.FromBase64String(notes.Text);
+                        using(var memoryStream = new MemoryStream(documentContents)) {
+                            var range = new TextRange(newNote.NoteText.Document.ContentStart,
+                                                      newNote.NoteText.Document.ContentEnd);
+                            range.Load(memoryStream, DataFormats.XamlPackage);
+                        }
+                        noteContainer.NoteStack.Children.Add(newNote);
+                    }
+                }
+
+                newTab.MouseDoubleClick += Tab_MouseDoubleClick;
+                newTab.Content = noteContainer;
+
+                NoteTabContainer.Items.Insert(NoteTabContainer.Items.Count - 1, newTab);
+            }
         }
 
         private void New_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
@@ -53,7 +99,8 @@ namespace NotePane {
             NewNotebook();
         }
 
-        private void NewNotebook() {
+        private void NewNotebook(bool createNewTab = true) {
+            _filename = null;
             _tabCount = 0;
             NoteTabContainer.Items.Clear();
 
@@ -61,7 +108,8 @@ namespace NotePane {
             newTab.GotFocus += AddTab_GotFocus;
             NoteTabContainer.Items.Add(newTab);
 
-            CreateTab();
+            if(createNewTab)
+                CreateTab();
         }
 
         private void NoteExpansion(bool expand) {
@@ -74,7 +122,13 @@ namespace NotePane {
         }
 
         private void Open_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
-            throw new System.NotImplementedException();
+            var openDlg = new OpenFileDialog { Filter = "Notebook|*.note|All Files|*.*" };
+
+            var result = openDlg.ShowDialog();
+            if(!result.HasValue || !result.Value) return;
+
+            _filename = openDlg.FileName;
+            Load(DeserializeFile(_filename));
         }
 
         private void Tab_MouseDoubleClick(object sender, RoutedEventArgs e) {
@@ -128,11 +182,73 @@ namespace NotePane {
         }
 
         private void Save_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
-            throw new System.NotImplementedException();
+            if(_filename == null) SaveAs();
+            SaveFile(_filename);
         }
 
         private void SaveAs_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
-            throw new System.NotImplementedException();
+            SaveAs();
+        }
+
+        private void SaveAs() {
+            var saveDlg = new SaveFileDialog { Filter = "Notebook|*.note|All Files|*.*" };
+
+            var result = saveDlg.ShowDialog();
+            if(!result.HasValue || !result.Value) return;
+
+            _filename = saveDlg.FileName;
+            SaveFile(_filename);
+        }
+
+        private void SaveFile(string filename) {
+            var serializer = new XmlSerializer(typeof(Notebook));
+
+            using(var outputStream = new MemoryStream()) {
+                serializer.Serialize(outputStream, SerializeData());
+
+                outputStream.Position = 0;
+                using(var fileStream = File.Open(filename, FileMode.Create))
+                    outputStream.CopyTo(fileStream);
+            }
+        }
+
+        private Notebook SerializeData() {
+            var notebook = new Notebook();
+            var outTabList = new List<TabType>();
+
+            // Focus the form to fire off the LostFocus event for any stray rename boxes.
+            Focus();
+
+            foreach(var tabObject in NoteTabContainer.Items) {
+                var tab = (TabItem)tabObject;
+                if(tab.Content == null || tab.Content.GetType() != typeof(NoteContainer)) continue;
+
+                var outTab = new TabType();
+                var noteContainer = (NoteContainer)tab.Content;
+                var tabNotes = new List<NoteType>();
+                foreach(var containerChild in noteContainer.NoteStack.Children) {
+                    if(containerChild.GetType() != typeof(Note)) continue;
+
+                    var note = (Note)containerChild;
+                    var outNote = new NoteType { Title = note.Title.Text };
+
+                    using(var memoryStream = new MemoryStream()) {
+                        var range = new TextRange(note.NoteText.Document.ContentStart, note.NoteText.Document.ContentEnd);
+                        range.Save(memoryStream, DataFormats.XamlPackage);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        var rtfData = System.Convert.ToBase64String(memoryStream.ToArray());
+                        outNote.Text = rtfData;
+                    }
+
+                    tabNotes.Add(outNote);
+                }
+                outTab.Title = (string)tab.Header;
+                outTab.Note = tabNotes.ToArray();
+                outTabList.Add(outTab);
+            }
+            notebook.Tabs = outTabList.ToArray();
+
+            return notebook;
         }
 
         private class TabData {

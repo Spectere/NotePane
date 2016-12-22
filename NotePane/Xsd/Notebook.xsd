@@ -8,7 +8,13 @@
   <xs:element name="Notebook">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Tab" type="notebook:TabType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="Tabs" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Tab" type="notebook:TabType" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
