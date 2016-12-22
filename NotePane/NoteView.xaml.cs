@@ -116,8 +116,7 @@ namespace NotePane {
             var noteContainer = (NoteContainer)NoteTabContainer.SelectedContent;
 
             foreach(Note note in noteContainer.NoteStack.Children) {
-                if(expand) note.Expand();
-                else note.Collapse();
+                note.Expanded = expand;
             }
         }
 

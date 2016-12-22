@@ -8,18 +8,18 @@ namespace NotePane {
     public partial class Note {
         private bool _expanded = true;
 
+        /// <summary>
+        /// Gets or sets whether or not the note is expanded or not.
+        /// </summary>
+        public bool Expanded {
+            get { return _expanded; }
+            set { ExpansionHandler(value); }
+        }
+
         public Note() {
             InitializeComponent();
             TitleSeparator.Margin = new Thickness(0, TitleRow.Height.Value - 1, 0, 0);
             NoteText.Document.LineHeight = 1;
-        }
-
-        public void Collapse() {
-            ExpansionHandler(false);
-        }
-
-        public void Expand() {
-            ExpansionHandler(true);
         }
 
         private void ExpansionHandler(bool expand) {
