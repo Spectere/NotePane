@@ -55,11 +55,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="NoteContainer.xaml.cs">
+      <DependentUpon>NoteContainer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="NoteTabHeader.xaml.cs">
       <DependentUpon>NoteTabHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Schema\Notebook.cs" />
     <Page Include="Note.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NoteContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

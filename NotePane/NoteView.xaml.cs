@@ -40,7 +40,7 @@ namespace NotePane {
 
         private void AddNote_Click(object sender, RoutedEventArgs e) {
             var activeTab = (TabItem)NoteTabContainer.SelectedItem;
-            var activeNoteContainer = (StackPanel)activeTab.Content;
+            var activeNoteContainer = ((NoteContainer)activeTab.Content).NoteStack;
             activeNoteContainer.Children.Add(CreateNote());
         }
 
@@ -58,7 +58,7 @@ namespace NotePane {
             tabHeader.DeleteTab += TabHeader_OnDeleteTab;
 
             var newTab = new TabItem {
-                Content = new StackPanel(),
+                Content = new NoteContainer(),
                 Style = (Style)Resources["NoteTabStyle"]
             };
 
@@ -101,12 +101,16 @@ namespace NotePane {
             NoteExpansion(true);
         }
 
+        private StackPanel GetActiveNoteStack() {
+            return ((NoteContainer)NoteTabContainer.SelectedContent).NoteStack;
+        }
+
         private void Load(Notebook notebook) {
             NewNotebook(false);
 
             foreach(var tab in notebook.Tabs) {
                 var newTab = CreateTab(tab.Title);
-                var noteContainer = new StackPanel();
+                var noteContainer = new NoteContainer();
 
                 if(tab.Note != null) {
                     foreach(var note in tab.Note) {
@@ -120,7 +124,7 @@ namespace NotePane {
                                                       newNote.NoteText.Document.ContentEnd);
                             range.Load(memoryStream, DataFormats.XamlPackage);
                         }
-                        noteContainer.Children.Add(newNote);
+                        noteContainer.NoteStack.Children.Add(newNote);
                     }
                 }
 
@@ -155,14 +159,14 @@ namespace NotePane {
         }
 
         private void Note_DeleteNote(object sender, Note e) {
-            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            var noteContainer = GetActiveNoteStack();
             noteContainer.Children.Remove(e);
         }
 
         private void Note_MoveDown(object sender, Note e) {
             if(e == null) return;
 
-            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            var noteContainer = GetActiveNoteStack();
             var destinationIndex = noteContainer.Children.IndexOf(e) + 1;
 
             if(destinationIndex >= noteContainer.Children.Count) return;
@@ -173,7 +177,7 @@ namespace NotePane {
         private void Note_MoveUp(object sender, Note e) {
             if(e == null) return;
 
-            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            var noteContainer = GetActiveNoteStack();
             var destinationIndex = noteContainer.Children.IndexOf(e) - 1;
 
             if(destinationIndex < 0) return;
@@ -182,7 +186,7 @@ namespace NotePane {
         }
 
         private void NoteExpansion(bool expand) {
-            var noteContainer = (StackPanel)NoteTabContainer.SelectedContent;
+            var noteContainer = GetActiveNoteStack();
 
             foreach(Note note in noteContainer.Children) {
                 note.Expanded = expand;
@@ -272,10 +276,10 @@ namespace NotePane {
 
             foreach(var tabObject in NoteTabContainer.Items) {
                 var tab = (TabItem)tabObject;
-                if(tab.Content == null || tab.Content.GetType() != typeof(StackPanel)) continue;
+                if(tab.Content == null || tab.Content.GetType() != typeof(NoteContainer)) continue;
 
                 var outTab = new TabType();
-                var noteContainer = (StackPanel)tab.Content;
+                var noteContainer = ((NoteContainer)tab.Content).NoteStack;
                 var tabNotes = new List<NoteType>();
                 foreach(var containerChild in noteContainer.Children) {
                     if(containerChild.GetType() != typeof(Note)) continue;
