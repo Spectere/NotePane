@@ -118,7 +118,7 @@ namespace NotePane {
                         newNote.Expanded = !note.ExpandedSpecified || note.Expanded;
                         newNote.Title.Text = note.Title;
 
-                        var documentContents = System.Convert.FromBase64String(note.Data);
+                        var documentContents = Convert.FromBase64String(note.Data);
                         using(var memoryStream = new MemoryStream(documentContents)) {
                             var range = new TextRange(newNote.NoteText.Document.ContentStart,
                                                       newNote.NoteText.Document.ContentEnd);
@@ -295,7 +295,7 @@ namespace NotePane {
                         var range = new TextRange(note.NoteText.Document.ContentStart, note.NoteText.Document.ContentEnd);
                         range.Save(memoryStream, DataFormats.XamlPackage);
                         memoryStream.Seek(0, SeekOrigin.Begin);
-                        var rtfData = System.Convert.ToBase64String(memoryStream.ToArray());
+                        var rtfData = Convert.ToBase64String(memoryStream.ToArray());
                         outNote.Data = rtfData;
                     }
 
