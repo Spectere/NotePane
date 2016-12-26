@@ -297,7 +297,7 @@ namespace NotePane {
 
                     tabNotes.Add(outNote);
                 }
-                outTab.Title = (string)tab.Header;
+                outTab.Title = ((NoteTabHeader)tab.Header).TabTitle;
                 outTab.Note = tabNotes.ToArray();
                 outTabList.Add(outTab);
             }
