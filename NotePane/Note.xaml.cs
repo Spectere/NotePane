@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NotePane {
@@ -18,6 +19,7 @@ namespace NotePane {
         }
 
         public event EventHandler<Note> DeleteNote;
+        public event EventHandler<Note> Modified;
         public event EventHandler<Note> MoveDown;
         public event EventHandler<Note> MoveUp;
 
@@ -31,6 +33,7 @@ namespace NotePane {
             var result = MessageBox.Show("Are you sure you wish to delete this note? This action cannot be undone.", null, MessageBoxButton.YesNo);
             if(result != MessageBoxResult.Yes) return;
 
+            Modified?.Invoke(this, this);
             DeleteNote?.Invoke(this, this);
         }
 
@@ -39,6 +42,7 @@ namespace NotePane {
             ExpandButton.Content = expand ? "-" : "+";
             TitleSeparator.Visibility = expand ? Visibility.Hidden : Visibility.Visible;
             _expanded = expand;
+            Modified?.Invoke(this, this);
         }
 
         private void Expand_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
@@ -51,6 +55,10 @@ namespace NotePane {
 
         private void MoveUp_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
             MoveUp?.Invoke(this, this);
+        }
+
+        private void NoteContentsChanged(object sender, TextChangedEventArgs e) {
+            Modified?.Invoke(this, this);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Dynamic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,6 +9,7 @@ namespace NotePane {
     /// </summary>
     public partial class NoteTabHeader {
         public event EventHandler<TabItem> DeleteTab;
+        public event EventHandler<TabItem> Modified;
 
         public TabItem ParentTab { get; set; }
 
@@ -25,6 +25,7 @@ namespace NotePane {
         private void Delete() {
             var result = MessageBox.Show("Are you sure you wish to delete this tab? This action cannot be undone.", null, MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
             if(result != MessageBoxResult.Yes) return;
+            Modified?.Invoke(this, ParentTab);
             DeleteTab?.Invoke(this, ParentTab);
         }
 
@@ -39,6 +40,7 @@ namespace NotePane {
 
         private void Rename(string newName) {
             Title.Content = newName;
+            Modified?.Invoke(this, ParentTab);
         }
 
         private void Title_MouseDoubleClick(object sender, MouseButtonEventArgs e) {

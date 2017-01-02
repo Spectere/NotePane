@@ -17,6 +17,15 @@ namespace NotePane {
     public partial class NoteView {
         private string _filename;
         private int _tabCount;
+        private bool _modified;
+
+        private bool Modified {
+            get { return _modified; }
+            set {
+                _modified = value;
+                SetTitle();
+            }
+        }
 
         public NoteView() {
             InitializeComponent();
@@ -24,14 +33,13 @@ namespace NotePane {
         }
 
         private void NoteView_OnClosing(object sender, CancelEventArgs e) {
-            var result = MessageBox.Show("Are you sure you wish to exit? Unsaved changes will be lost.", null, MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if(result == MessageBoxResult.Yes) return;
-            e.Cancel = true;
+            if(!UnsavedChangesWarning("Are you sure you wish to exit?")) e.Cancel = true;
         }
 
         private void AddTab(TabItem tab) {
             NoteTabContainer.Items.Insert(NoteTabContainer.Items.Count - 1, tab);
             NoteTabContainer.SelectedItem = tab;
+            Modified = true;
         }
 
         private void AddTab_GotFocus(object sender, RoutedEventArgs e) {
@@ -47,6 +55,7 @@ namespace NotePane {
         private Note CreateNote() {
             var newNote = new Note();
             newNote.DeleteNote += Note_DeleteNote;
+            newNote.Modified += Note_Modified;
             newNote.MoveDown += Note_MoveDown;
             newNote.MoveUp += Note_MoveUp;
             return newNote;
@@ -56,6 +65,7 @@ namespace NotePane {
             var headerText = header ?? $"Tab {++_tabCount}";
             var tabHeader = new NoteTabHeader { TabTitle = headerText };
             tabHeader.DeleteTab += TabHeader_OnDeleteTab;
+            tabHeader.Modified += (sender, item) => { Modified = true; };
 
             var newTab = new TabItem {
                 Content = new NoteContainer(),
@@ -137,11 +147,7 @@ namespace NotePane {
         }
 
         private void New_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
-            var result = MessageBox.Show(
-                "Are you sure you wish to create a new Notebook? Unsaved changes will be lost.", null,
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if(result == MessageBoxResult.No) return;
-
+            if(!UnsavedChangesWarning("Are you sure you wish to create a new notebook?")) return;
             NewNotebook();
         }
 
@@ -156,11 +162,18 @@ namespace NotePane {
 
             if(createNewTab)
                 AddTab(CreateTab());
+
+            _modified = false;
+            SetTitle();
         }
 
         private void Note_DeleteNote(object sender, Note e) {
             var noteContainer = GetActiveNoteStack();
             noteContainer.Children.Remove(e);
+        }
+
+        private void Note_Modified(object sender, Note e) {
+            Modified = true;
         }
 
         private void Note_MoveDown(object sender, Note e) {
@@ -172,6 +185,8 @@ namespace NotePane {
             if(destinationIndex >= noteContainer.Children.Count) return;
             noteContainer.Children.Remove(e);
             noteContainer.Children.Insert(destinationIndex, e);
+
+            Modified = true;
         }
 
         private void Note_MoveUp(object sender, Note e) {
@@ -183,14 +198,15 @@ namespace NotePane {
             if(destinationIndex < 0) return;
             noteContainer.Children.Remove(e);
             noteContainer.Children.Insert(destinationIndex, e);
+
+            Modified = true;
         }
 
         private void NoteExpansion(bool expand) {
             var noteContainer = GetActiveNoteStack();
 
-            foreach(Note note in noteContainer.Children) {
+            foreach(Note note in noteContainer.Children)
                 note.Expanded = expand;
-            }
         }
 
         private void NoteTab_Drag(object sender, MouseEventArgs e) {
@@ -223,6 +239,8 @@ namespace NotePane {
             NoteTabContainer.Items.Remove(tabSource);
             NoteTabContainer.Items.Insert(destinationIndex, tabSource);
             NoteTabContainer.SelectedIndex = destinationIndex;
+
+            Modified = true;
         }
 
         private void Open_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
@@ -230,10 +248,14 @@ namespace NotePane {
 
             var result = openDlg.ShowDialog();
             if(!result.HasValue || !result.Value) return;
+            if(!UnsavedChangesWarning("Are you sure you wish to open another file?")) return;
 
             var filename = openDlg.FileName;
             Load(DeserializeFile(filename));
             _filename = filename;
+            _modified = false;
+
+            SetTitle();
         }
 
         private void Save_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
@@ -265,6 +287,8 @@ namespace NotePane {
                 using(var fileStream = File.Open(filename, FileMode.Create))
                     outputStream.CopyTo(fileStream);
             }
+
+            Modified = false;
         }
 
         private Notebook SerializeData() {
@@ -312,8 +336,23 @@ namespace NotePane {
             return notebook;
         }
 
+        private void SetTitle() {
+            var file = _filename != null
+                ? Path.GetFileNameWithoutExtension(_filename)
+                : "Untitled";
+
+            Title = string.Format("NotePane - {1}[{0}]", file, _modified ? "*" : "");
+        }
+
         private void TabHeader_OnDeleteTab(object sender, TabItem tabItem) {
             DeleteTab(tabItem);
+        }
+
+        private bool UnsavedChangesWarning(string message) {
+            if(!_modified) return true;
+            var result = MessageBox.Show($"{message} Unsaved changes will be lost.", null, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(result == MessageBoxResult.Yes) return true;
+            return false;
         }
     }
 }

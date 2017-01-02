@@ -62,6 +62,7 @@
                      Background="Transparent"
                      BorderBrush="Transparent"
                      Text="New Note"
+                     TextChanged="NoteContentsChanged"
                      Style="{StaticResource TitleStyle}" />
 
             <Label Name="UpButton"
@@ -93,6 +94,7 @@
             <RichTextBox Name="NoteText"
                          Background="Transparent"
                          BorderBrush="Transparent"
+                         TextChanged="NoteContentsChanged"
                          Style="{StaticResource BodyStyle}" />
 
             <Separator />
