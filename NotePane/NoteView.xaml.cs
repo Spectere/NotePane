@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Xml.Serialization;
 
 namespace NotePane {
@@ -112,6 +113,19 @@ namespace NotePane {
             NoteExpansion(true);
         }
 
+        private object FindTypeInStack<T>(FrameworkElement element) {
+            if(element == null)
+                return null;
+
+            if(element.GetType() == typeof(T))
+                return element;
+
+            if(element.Parent == null)
+                return null;
+
+            return FindTypeInStack<T>((FrameworkElement)element.Parent);
+        }
+
         private StackPanel GetActiveNoteStack() {
             return ((NoteContainer)NoteTabContainer.SelectedContent).NoteStack;
         }
@@ -147,6 +161,50 @@ namespace NotePane {
                 NoteTabContainer.SelectedIndex = notebook.SelectedTab;
         }
 
+        private void MoveDown_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            var element = FocusManager.GetFocusedElement(this);
+
+            var note = FindTypeInStack<Note>((FrameworkElement)element) as Note;
+            if(note == null) return;
+
+            MoveNoteDown(note);
+        }
+
+        private void MoveNoteDown(Note e) {
+            if(e == null) return;
+
+            var noteContainer = GetActiveNoteStack();
+            var destinationIndex = noteContainer.Children.IndexOf(e) + 1;
+
+            if(destinationIndex >= noteContainer.Children.Count) return;
+            noteContainer.Children.Remove(e);
+            noteContainer.Children.Insert(destinationIndex, e);
+
+            Modified = true;
+        }
+
+        private void MoveNoteUp(Note e) {
+            if(e == null) return;
+
+            var noteContainer = GetActiveNoteStack();
+            var destinationIndex = noteContainer.Children.IndexOf(e) - 1;
+
+            if(destinationIndex < 0) return;
+            noteContainer.Children.Remove(e);
+            noteContainer.Children.Insert(destinationIndex, e);
+
+            Modified = true;
+        }
+
+        private void MoveUp_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
+            var element = FocusManager.GetFocusedElement(this);
+
+            var note = FindTypeInStack<Note>((FrameworkElement)element) as Note;
+            if(note == null) return;
+
+            MoveNoteUp(note);
+        }
+
         private void New_OnExecuted(object sender, ExecutedRoutedEventArgs e) {
             if(!UnsavedChangesWarning("Are you sure you wish to create a new notebook?")) return;
             NewNotebook();
@@ -178,16 +236,7 @@ namespace NotePane {
         }
 
         private void Note_MoveDown(object sender, Note e) {
-            if(e == null) return;
-
-            var noteContainer = GetActiveNoteStack();
-            var destinationIndex = noteContainer.Children.IndexOf(e) + 1;
-
-            if(destinationIndex >= noteContainer.Children.Count) return;
-            noteContainer.Children.Remove(e);
-            noteContainer.Children.Insert(destinationIndex, e);
-
-            Modified = true;
+            MoveNoteDown(e);
         }
 
         private void Note_MoveToTab(object sender, Note e) {
@@ -254,16 +303,7 @@ namespace NotePane {
         }
 
         private void Note_MoveUp(object sender, Note e) {
-            if(e == null) return;
-
-            var noteContainer = GetActiveNoteStack();
-            var destinationIndex = noteContainer.Children.IndexOf(e) - 1;
-
-            if(destinationIndex < 0) return;
-            noteContainer.Children.Remove(e);
-            noteContainer.Children.Insert(destinationIndex, e);
-
-            Modified = true;
+            MoveNoteUp(e);
         }
 
         private void NoteExpansion(bool expand) {

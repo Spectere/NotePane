@@ -12,13 +12,19 @@
         <CommandBinding Command="Open" Executed="Open_OnExecuted" />
         <CommandBinding Command="Save" Executed="Save_OnExecuted" />
         <CommandBinding Command="SaveAs" Executed="SaveAs_OnExecuted" />
+
+        <CommandBinding Command="MoveUp" Executed="MoveUp_OnExecuted" />
+        <CommandBinding Command="MoveDown" Executed="MoveDown_OnExecuted" />
     </Window.CommandBindings>
-    
+
     <Window.InputBindings>
         <KeyBinding Command="New" Key="N" Modifiers="Control" />
         <KeyBinding Command="Open" Key="O" Modifiers="Control" />
         <KeyBinding Command="Save" Key="S" Modifiers="Control" />
         <KeyBinding Command="SaveAs" Key="F12" />
+        
+        <KeyBinding Command="MoveUp" Key="OemComma" Modifiers="Control" />
+        <KeyBinding Command="MoveDown" Key="OemPeriod" Modifiers="Control" />
     </Window.InputBindings>
     
     <Window.Resources>
