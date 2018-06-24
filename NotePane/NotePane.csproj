@@ -58,6 +58,7 @@
     <Compile Include="NoteContainer.xaml.cs">
       <DependentUpon>NoteContainer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="NoteMoveDetail.cs" />
     <Compile Include="NoteTabHeader.xaml.cs">
       <DependentUpon>NoteTabHeader.xaml</DependentUpon>
     </Compile>

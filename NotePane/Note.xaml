@@ -27,6 +27,12 @@
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
 
+        <Style x:Key="MoveTabStyle" TargetType="Label">
+            <Setter Property="Foreground" Value="ForestGreen" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
         <Style x:Key="TitleStyle" TargetType="TextBox" BasedOn="{StaticResource CommonStyle}">
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="Bold"></Setter>
@@ -46,6 +52,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -77,8 +84,14 @@
                    Style="{StaticResource MoveStyle}"
                    MouseLeftButtonUp="MoveDown_MouseLeftButtonUp" />
             
-            <Label Name="DeleteButton"
+            <Label Name="MoveButton"
                    Grid.Column="4"
+                   Content="&gt;"
+                   Style="{StaticResource MoveTabStyle}"
+                   MouseLeftButtonUp="MoveToTab_MouseLeftButtonUp" />
+            
+            <Label Name="DeleteButton"
+                   Grid.Column="5"
                    Content="X"
                    Style="{StaticResource DeleteStyle}"
                    MouseLeftButtonUp="Delete_MouseLeftButtonUp" />

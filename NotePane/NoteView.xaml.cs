@@ -20,7 +20,7 @@ namespace NotePane {
         private bool _modified;
 
         private bool Modified {
-            get { return _modified; }
+            get => _modified;
             set {
                 _modified = value;
                 SetTitle();
@@ -58,6 +58,7 @@ namespace NotePane {
             newNote.Modified += Note_Modified;
             newNote.MoveDown += Note_MoveDown;
             newNote.MoveUp += Note_MoveUp;
+            newNote.MoveToTab += Note_MoveToTab;
             return newNote;
         }
 
@@ -187,6 +188,69 @@ namespace NotePane {
             noteContainer.Children.Insert(destinationIndex, e);
 
             Modified = true;
+        }
+
+        private void Note_MoveToTab(object sender, Note e) {
+            if(e == null) return;
+
+            var tabMenu = new ContextMenu { Tag = e };
+            for(var i = 0; i < NoteTabContainer.Items.Count - 1; i++) {
+                var tab = NoteTabContainer.Items[i] as TabItem;
+
+                if(tab == null)
+                    continue;
+                if(i == NoteTabContainer.SelectedIndex)
+                    continue;
+                if(!(tab.Header is NoteTabHeader))
+                    continue;
+
+                // Create the menu item with the necessary details.
+                var noteMoveDetail = new NoteMoveDetail {
+                    SourceTabIndex = NoteTabContainer.SelectedIndex,
+                    DestinationTabIndex = i,
+                    DestinationTabTitle = ((NoteTabHeader)tab.Header).TabTitle,
+                    Note = e
+                };
+
+                var menuItem = new MenuItem { Header = noteMoveDetail };
+                menuItem.Click += NoteMoveToTab_Click;
+
+                tabMenu.Items.Add(menuItem);
+            }
+
+            tabMenu.PlacementTarget = sender as Label;
+            tabMenu.IsOpen = true;
+        }
+
+        private void NoteMoveToTab_Click(object sender, RoutedEventArgs e) {
+            // Extract our data from the MenuItem's header.
+            var menuItem = sender as MenuItem;
+            if(!(menuItem?.Header is NoteMoveDetail))
+                return;
+
+            var noteMoveDetail = (NoteMoveDetail)menuItem.Header;
+            
+            // Duplicate the note and place it into the destination container.
+            var oldNote = noteMoveDetail.Note;
+            var newNote = CreateNote();
+            newNote.Expanded = oldNote.Expanded;
+            newNote.Title.Text = oldNote.Title.Text;
+
+            var oldRange = new TextRange(oldNote.NoteText.Document.ContentStart, oldNote.NoteText.Document.ContentEnd);
+            var newRange = new TextRange(newNote.NoteText.Document.ContentStart, newNote.NoteText.Document.ContentEnd);
+
+            using(var memoryStream = new MemoryStream()) {
+                oldRange.Save(memoryStream, DataFormats.XamlPackage);
+                newRange.Load(memoryStream, DataFormats.XamlPackage);
+            }
+
+            // Add the new note to the appropriate container (complete with disgusting casts).
+            var destinationNoteContainer = ((NoteContainer)((TabItem)NoteTabContainer.Items[noteMoveDetail.DestinationTabIndex]).Content).NoteStack;
+            destinationNoteContainer.Children.Add(newNote);
+
+            // Delete the old note.
+            var sourceNoteContainer = ((NoteContainer)((TabItem)NoteTabContainer.Items[noteMoveDetail.SourceTabIndex]).Content).NoteStack;
+            sourceNoteContainer.Children.Remove(oldNote);
         }
 
         private void Note_MoveUp(object sender, Note e) {

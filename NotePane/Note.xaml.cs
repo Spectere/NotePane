@@ -14,14 +14,15 @@ namespace NotePane {
         /// Gets or sets whether or not the note is expanded or not.
         /// </summary>
         public bool Expanded {
-            get { return _expanded; }
-            set { ExpansionHandler(value); }
+            get => _expanded;
+            set => ExpansionHandler(value);
         }
 
         public event EventHandler<Note> DeleteNote;
         public event EventHandler<Note> Modified;
         public event EventHandler<Note> MoveDown;
         public event EventHandler<Note> MoveUp;
+        public event EventHandler<Note> MoveToTab;
 
         public Note() {
             InitializeComponent();
@@ -59,6 +60,10 @@ namespace NotePane {
 
         private void NoteContentsChanged(object sender, TextChangedEventArgs e) {
             Modified?.Invoke(this, this);
+        }
+
+        private void MoveToTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            MoveToTab?.Invoke(this, this);
         }
     }
 }
