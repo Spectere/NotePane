@@ -18,13 +18,15 @@
                Padding="0"
                Grid.Column="0" />
         
-        <Button Content="X"
-                FontSize="8"
-                FontWeight="Bold"
-                Margin="4 0 0 0"
-                Padding="2 0"
+        <Button Margin="4 0 0 0"
+                Padding="0 0"
                 VerticalAlignment="Center"
                 Click="Delete_OnClick"
-                Grid.Column="1" />
+                Grid.Column="1">
+            <Image Source="Resources/DeleteButton.png"
+                   Height="8"
+                   Margin="3"
+                   MouseLeftButtonUp="Delete_OnClick"/>
+        </Button>
     </Grid>
 </UserControl>

@@ -10,27 +10,14 @@
             <Setter Property="Margin" Value="0 0 0 0"></Setter>
         </Style>
 
-        <Style x:Key="DeleteStyle" TargetType="Label">
-            <Setter Property="Foreground" Value="DarkRed" />
-            <Setter Property="FontSize" Value="10" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-
         <Style x:Key="ExpandStyle" TargetType="Label">
             <Setter Property="FontFamily" Value="Courier New" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
-
-        <Style x:Key="MoveStyle" TargetType="Label">
-            <Setter Property="FontSize" Value="10" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-
-        <Style x:Key="MoveTabStyle" TargetType="Label">
-            <Setter Property="Foreground" Value="ForestGreen" />
-            <Setter Property="FontSize" Value="10" />
-            <Setter Property="FontWeight" Value="Bold" />
+        
+        <Style x:Key="ImageButtonStyle" TargetType="Image">
+            <Setter Property="Margin" Value="2 6 6 6" />
         </Style>
 
         <Style x:Key="TitleStyle" TargetType="TextBox" BasedOn="{StaticResource CommonStyle}">
@@ -72,28 +59,28 @@
                      TextChanged="NoteContentsChanged"
                      Style="{StaticResource TitleStyle}" />
 
-            <Label Name="UpButton"
+            <Image Name="UpButton"
                    Grid.Column="2"
-                   Content="^"
-                   Style="{StaticResource MoveStyle}"
+                   Source="Resources/UpArrow.png"
+                   Style="{StaticResource ImageButtonStyle}"
                    MouseLeftButtonUp="MoveUp_MouseLeftButtonUp" />
             
-            <Label Name="DownButton"
+            <Image Name="DownButton"
                    Grid.Column="3"
-                   Content="v"
-                   Style="{StaticResource MoveStyle}"
+                   Source="Resources/DownArrow.png"
+                   Style="{StaticResource ImageButtonStyle}"
                    MouseLeftButtonUp="MoveDown_MouseLeftButtonUp" />
             
-            <Label Name="MoveButton"
+            <Image Name="MoveButton"
                    Grid.Column="4"
-                   Content="&gt;"
-                   Style="{StaticResource MoveTabStyle}"
+                   Source="Resources/RightArrow.png"
+                   Style="{StaticResource ImageButtonStyle}"
                    MouseLeftButtonUp="MoveToTab_MouseLeftButtonUp" />
             
-            <Label Name="DeleteButton"
+            <Image Name="DeleteButton"
                    Grid.Column="5"
-                   Content="X"
-                   Style="{StaticResource DeleteStyle}"
+                   Source="Resources/DeleteButton.png"
+                   Style="{StaticResource ImageButtonStyle}"
                    MouseLeftButtonUp="Delete_MouseLeftButtonUp" />
         </Grid>
 
